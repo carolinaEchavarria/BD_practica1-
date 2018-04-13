@@ -106,11 +106,10 @@ public class Diagnostico {
 			String creasymptom= "CREATE TABLE `diagnostico`.`symptom` (  `cui` VARCHAR(25) NOT NULL,  `name` VARCHAR(255) NULL,  PRIMARY KEY (`cui`))  ENGINE = InnoDB;";
 			String creadisease_symptom= "CREATE TABLE `diagnostico`.`disease_symptom` (  `disease_id` VARCHAR(45) NOT NULL,  `symptom_id` VARCHAR(25) NOT NULL,  PRIMARY KEY (`disease_id`, `symptom_id`), INDEX `fk2_idx` (`symptom_id` ASC),  CONSTRAINT `fk1` FOREIGN KEY (`disease_id`) REFERENCES `diagnostico`.`disease` (`disease_id`)    ON DELETE NO ACTION    ON UPDATE NO ACTION, CONSTRAINT `fk2` FOREIGN KEY (`symptom_id`) REFERENCES `diagnostico`.`symptom` (`cui`) ON DELETE NO ACTION ON UPDATE NO ACTION) ENGINE = InnoDB;";
 			String creasemantic_type= "CREATE TABLE `diagnostico`.`semantic_type` (`semantic_type_id` INT NOT NULL, `tui` VARCHAR(45) NULL, PRIMARY KEY (`semantic_type_id`))  ENGINE = InnoDB;";
-			String creasymptom_semantic_type= "CREATE TABLE `diagnostico`.`symptom_semantic_type` ( `cui` VARCHAR(25) NOT NULL, `semantic_type_id` INT NOT NULL, PRIMARY KEY (`cui`, `semantic_type_id`), INDEX `fk2_idx` (`semantic_type_id` ASC), CONSTRAINT `fk1` FOREIGN KEY (`cui`) REFERENCES `diagnostico`.`symptom` (`cui`) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT `fk2` FOREIGN KEY (`semantic_type_id`) REFERENCES `diagnostico`.`semantic_type` (`semantic_type_id`) ON DELETE NO ACTION ON UPDATE NO ACTION) ENGINE = InnoDB;";
-			String creacode= "CREATE TABLE `diagnostico`.`code` (`code` VARCHAR(255) NOT NULL, `source_id` VARCHAR(25) NOT NULL,  PRIMARY KEY (`code`, `source_id`))  ENGINE = InnoDB;";
+			String creasymptom_semantic_type= "CREATE TABLE `diagnostico`.`simptom_semantic_type` ( `cui` VARCHAR(25) NOT NULL, `semantic_type_id` INT NOT NULL, PRIMARY KEY (`cui`, `semantic_type_id`), INDEX `fk2_idx` (`semantic_type_id` ASC), CONSTRAINT `fk1_symptom` FOREIGN KEY (`cui`) REFERENCES `diagnostico`.`symptom` (`cui`) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT `fk2_symptom` FOREIGN KEY (`semantic_type_id`) REFERENCES `diagnostico`.`semantic_type` (`semantic_type_id`) ON DELETE NO ACTION ON UPDATE NO ACTION) ENGINE = InnoDB;"; 	
 			String creasource= "CREATE TABLE `diagnostico`.`source` ( `source_id` VARCHAR(25) NOT NULL,  `name` VARCHAR(255) NULL,  PRIMARY KEY (`source_id`))  ENGINE = InnoDB;";
-			String fkcode= "ALTER TABLE `diagnostico`.`code` ADD INDEX `code_fk1_idx` (`source_id` ASC);ALTER TABLE `diagnostico`.`code` ADD CONSTRAINT `code_fk1`  FOREIGN KEY (`source_id`)  REFERENCES `diagnostico`.`source` (`source_id`)  ON DELETE NO ACTION   ON UPDATE NO ACTION;";
-			String creadisease_code= "CREATE TABLE `diagnostico`.`disease_code` (  `disease_id` VARCHAR(45) NOT NULL,  `code` VARCHAR(255) NOT NULL,  PRIMARY KEY (`disease_id`, `code`),  INDEX `code_fk4_idx` (`code` ASC),  CONSTRAINT `code_fk3`    FOREIGN KEY (`disease_id`)    REFERENCES `diagnostico`.`disease` (`disease_id`)    ON DELETE NO ACTION    ON UPDATE NO ACTION,  CONSTRAINT `code_fk4`    FOREIGN KEY (`code`)    REFERENCES `diagnostico`.`code` (`code`) ON DELETE NO ACTION ON UPDATE NO ACTION) ENGINE = InnoDB;";
+			String creacode= "CREATE TABLE `diagnostico`.`code` (`code` VARCHAR(255) NOT NULL,  `source_id` VARCHAR(25) NOT NULL,  PRIMARY KEY (`code`, `source_id`),  INDEX `fk1_code1_idx` (`source_id` ASC),  CONSTRAINT `fk1_code1`    FOREIGN KEY (`source_id`)    REFERENCES `diagnostico`.`source` (`source_id`)    ON DELETE NO ACTION    ON UPDATE NO ACTION)ENGINE = InnoDB;";
+			String creadisease_code= "CREATE TABLE `diagnostico`.`disease_code` (  `disease_id` VARCHAR(45) NOT NULL,  `code` VARCHAR(255) NOT NULL,  `source_id` VARCHAR(25) NOT NULL,  PRIMARY KEY (`disease_id`, `code`, `source_id`),  INDEX `fk_discod2_idx` (`code` ASC),  INDEX `fk_discod3_idx` (`source_id` ASC),  CONSTRAINT `fk_discod1`    FOREIGN KEY (`disease_id`)    REFERENCES `diagnostico`.`disease` (`disease_id`)    ON DELETE NO ACTION    ON UPDATE NO ACTION,  CONSTRAINT `fk_discod2`    FOREIGN KEY (`code`)    REFERENCES `diagnostico`.`code` (`code`) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT `fk_discod3` FOREIGN KEY (`source_id`) REFERENCES `diagnostico`.`code` (`source_id`) ON DELETE NO ACTION ON UPDATE NO ACTION) ENGINE = InnoDB;";
 			
 			int result = st.executeUpdate(creadiagnostico);//aqui va la sentencia SQL
 			int result2 = st.executeUpdate(creadisease);
@@ -118,18 +117,17 @@ public class Diagnostico {
 			int result4 = st.executeUpdate(creadisease_symptom);
 			int result5 = st.executeUpdate(creasemantic_type);
 			int result6 = st.executeUpdate(creasymptom_semantic_type);
-			int result7 = st.executeUpdate(creacode);
 			int result8 = st.executeUpdate(creasource);
-			int result9 = st.executeUpdate(fkcode);
+			int result7 = st.executeUpdate(creacode);
 			int result10 = st.executeUpdate(creadisease_code);
 
 			System.out.println("Tablas creadas!");
 			
 			//---inserto los datos:
 			
-			LinkedList<String> data= readData();
-			System.out.println("Mi archivo es: " + data);
-			String[] parts= data.split(",");
+			//LinkedList<String> data= readData();
+			//System.out.println("Mi archivo es: " + data);
+			//String[] parts= data.split(",");
 
 			
 			System.out.println("Número de filas afectadas: " + result2);//devuelve el numero de tuplas (filas) actualizadas, no el numero de columnas,
@@ -142,10 +140,10 @@ public class Diagnostico {
 
 			conn.close();//sólo se cierra la conexiòn cuando se terminan todas las operaciones, se debe mantener activa hasta el final. 
 			//se ejecuta en el método exit sólamente 
-			
 		
 		} catch (Exception e) {
-			System.err.println("Error al conectar a la BD: " + e.getMessage());
+			System.err.println("Error: "+e.getMessage());
+			
 		}//antes de ejecutar las opciones del menú en la práctica, no me conecto!!
 	
 	}
